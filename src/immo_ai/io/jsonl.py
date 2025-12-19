@@ -5,8 +5,6 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, TextIO
 
-import ijson
-
 
 def _open_text(path: Path, mode: str):
     if path.suffix == ".gz":
@@ -47,6 +45,8 @@ def write_jsonl_line(handle: TextIO, row: dict[str, Any]) -> None:
 
 
 def iter_items_from_json(path: Path, items_key: str = "items") -> Iterator[dict[str, Any]]:
+    import ijson
+
     with open(path, "rb") as handle:
         for item in ijson.items(handle, f"{items_key}.item"):
             if isinstance(item, dict):

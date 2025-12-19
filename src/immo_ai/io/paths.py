@@ -28,6 +28,10 @@ class RunPaths:
     def rejects_path(self) -> Path:
         return self.processed_dir / "rejects.jsonl.gz"
 
+    @property
+    def cache_html_dir(self) -> Path:
+        return self.raw_dir / "cache" / "html"
+
 
 def build_run_paths(base_dir: Path, source: str, run_id: str | None) -> RunPaths:
     resolved_run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")

@@ -21,13 +21,13 @@ immo-ai parse immobilie1 --input data/raw/immobilie1/<run_id>/expose_bodies.json
 Collect links (polite crawling, stop on blocks):
 
 ```bash
-immo-ai ingest immobilie1 collect-links --max-pages 5 --throttle-seconds 1.2
+immo-ai ingest immobilie1 collect-links --max-pages 5 --throttle-seconds 1.2 --respect-robots
 ```
 
 Fetch bodies from links:
 
 ```bash
-immo-ai ingest immobilie1 fetch-bodies --input data/raw/immobilie1/<run_id>/expose_links.json
+immo-ai ingest immobilie1 fetch-bodies --input data/raw/immobilie1/<run_id>/expose_links.json --max-rpm 30
 ```
 
 ## Data layout

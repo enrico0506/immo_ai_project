@@ -4,6 +4,7 @@ from typing import Optional
 
 import typer
 
+from immo_ai import __version__
 from immo_ai.ingestion.immobilie1 import BUNDESLAND_SLUGS, CrawlConfig, collect_links, fetch_bodies
 from immo_ai.io.paths import build_run_paths
 from immo_ai.parsing.immobilie1 import parse_files
@@ -14,6 +15,11 @@ app = typer.Typer(add_completion=False, help="Immo AI CLI")
 parse_app = typer.Typer(help="Parse HTML bodies into structured data")
 ingest_app = typer.Typer(help="Ingest data from supported sources")
 immobilie1_ingest_app = typer.Typer(help="Ingest immobilie1 data")
+
+
+def _default_user_agent(contact_email: Optional[str]) -> str:
+    contact = contact_email or "none"
+    return f"immo-ai/{__version__} (+contact: {contact})"
 
 
 @app.callback()
@@ -53,9 +59,17 @@ def ingest_collect_links(
     ),
     states: Optional[list[str]] = typer.Option(None, "--state"),
     max_pages: Optional[int] = typer.Option(None, "--max-pages"),
-    throttle_seconds: float = typer.Option(1.0, "--throttle-seconds"),
-    timeout_seconds: float = typer.Option(20.0, "--timeout-seconds"),
-    retries: int = typer.Option(2, "--retries"),
+    throttle_seconds: float = typer.Option(1.0, "--throttle-seconds", help="Min seconds between requests."),
+    max_rpm: Optional[float] = typer.Option(
+        None, "--max-rpm", help="Optional cap on requests per minute (overrides throttle-seconds)."
+    ),
+    timeout_seconds: float = typer.Option(
+        20.0, "--timeout-seconds", help="Total timeout per request in seconds."
+    ),
+    retries: int = typer.Option(3, "--max-retries", "--retries"),
+    respect_robots: bool = typer.Option(True, "--respect-robots/--ignore-robots"),
+    user_agent: Optional[str] = typer.Option(None, "--user-agent"),
+    contact_email: Optional[str] = typer.Option(None, "--contact-email"),
     cache_dir: Optional[Path] = typer.Option(None, "--cache-dir"),
     output_path: Optional[Path] = typer.Option(None, "--output"),
     run_id: Optional[str] = typer.Option(None, "--run-id"),
@@ -63,10 +77,14 @@ def ingest_collect_links(
     run_paths = build_run_paths(Path.cwd(), "immobilie1", run_id)
     resolved_output = output_path or (run_paths.raw_dir / "expose_links.json")
     rejects_path = run_paths.raw_dir / "rejects.jsonl.gz"
+    resolved_user_agent = user_agent or _default_user_agent(contact_email)
     config = CrawlConfig(
         throttle_seconds=throttle_seconds,
+        max_rpm=max_rpm,
         retry=RetryConfig(retries=retries),
         timeout_seconds=timeout_seconds,
+        respect_robots=respect_robots,
+        user_agent=resolved_user_agent,
     )
 
     resolved_states = states or BUNDESLAND_SLUGS
@@ -88,9 +106,17 @@ def ingest_collect_links(
 def ingest_fetch_bodies(
     links_path: Path = typer.Option(..., "--input", exists=True, readable=True),
     output_path: Optional[Path] = typer.Option(None, "--output"),
-    throttle_seconds: float = typer.Option(1.0, "--throttle-seconds"),
-    timeout_seconds: float = typer.Option(20.0, "--timeout-seconds"),
-    retries: int = typer.Option(2, "--retries"),
+    throttle_seconds: float = typer.Option(1.0, "--throttle-seconds", help="Min seconds between requests."),
+    max_rpm: Optional[float] = typer.Option(
+        None, "--max-rpm", help="Optional cap on requests per minute (overrides throttle-seconds)."
+    ),
+    timeout_seconds: float = typer.Option(
+        20.0, "--timeout-seconds", help="Total timeout per request in seconds."
+    ),
+    retries: int = typer.Option(3, "--max-retries", "--retries"),
+    respect_robots: bool = typer.Option(True, "--respect-robots/--ignore-robots"),
+    user_agent: Optional[str] = typer.Option(None, "--user-agent"),
+    contact_email: Optional[str] = typer.Option(None, "--contact-email"),
     cache_dir: Optional[Path] = typer.Option(None, "--cache-dir"),
     limit: Optional[int] = typer.Option(None, "--limit"),
     run_id: Optional[str] = typer.Option(None, "--run-id"),
@@ -98,10 +124,14 @@ def ingest_fetch_bodies(
     run_paths = build_run_paths(Path.cwd(), "immobilie1", run_id)
     resolved_output = output_path or (run_paths.raw_dir / "expose_bodies.jsonl.gz")
     rejects_path = run_paths.raw_dir / "rejects.jsonl.gz"
+    resolved_user_agent = user_agent or _default_user_agent(contact_email)
     config = CrawlConfig(
         throttle_seconds=throttle_seconds,
+        max_rpm=max_rpm,
         retry=RetryConfig(retries=retries),
         timeout_seconds=timeout_seconds,
+        respect_robots=respect_robots,
+        user_agent=resolved_user_agent,
     )
 
     asyncio.run(
