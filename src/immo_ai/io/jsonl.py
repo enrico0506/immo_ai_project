@@ -45,6 +45,7 @@ def write_jsonl_line(handle: TextIO, row: dict[str, Any]) -> None:
     json.dump(row, handle, ensure_ascii=False)
     handle.write("\n")
 
+
 def iter_items_from_json(path: Path, items_key: str = "items") -> Iterator[dict[str, Any]]:
     with open(path, "rb") as handle:
         for item in ijson.items(handle, f"{items_key}.item"):

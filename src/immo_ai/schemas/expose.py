@@ -1,5 +1,3 @@
-from typing import Any
-
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from immo_ai.utils.text import first_present, parse_float
