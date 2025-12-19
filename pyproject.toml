@@ -1,0 +1,47 @@
+[project]
+name = "immo-ai"
+version = "0.1.0"
+description = "Immo AI data ingestion and parsing"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Immo AI Team" }]
+license = { text = "Proprietary" }
+
+dependencies = [
+  "beautifulsoup4>=4.12",
+  "lxml>=4.9",
+  "tqdm>=4.66",
+  "pydantic>=2.6",
+  "typer>=0.12",
+  "httpx>=0.27",
+  "python-dotenv>=1.0",
+  "ijson>=3.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.5",
+  "mypy>=1.8",
+  "pre-commit>=3.6",
+]
+
+[project.scripts]
+immo-ai = "immo_ai.cli:app"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+check_untyped_defs = true
+ignore_missing_imports = true
