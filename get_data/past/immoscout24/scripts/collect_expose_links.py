@@ -14,7 +14,7 @@ from tqdm import tqdm
 # How many pages of search results to scrape in total (including the first page).
 # - Set to an integer (e.g., 10) to limit pages.
 # - Set to None to go through *all* pages until a page has no links.
-PAGES_TO_FETCH: Optional[int] = None  # e.g. 10, 5, or None for all pages
+PAGES_TO_FETCH: Optional[int] = 1000  # e.g. 10, 5, or None for all pages
 
 # Fetch and store the HTML bodies for each expose. Turn off to avoid huge runs.
 FETCH_BODIES: bool = False
