@@ -26,3 +26,5 @@ geodata/overpass/*.pid
 geodata/overpass/socket/
 geodata/amensity/vendor/overpass/
 geodata/amensity/analysis/
+geodata/amensity/gtfs/
+geodata/amensity/noise/

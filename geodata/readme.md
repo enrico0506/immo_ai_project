@@ -1,68 +1,41 @@
-# Geodata
+## 1) Amenities density (shops, healthcare, schools, etc.)
 
-This folder contains all geo-related components and artifacts for this repo, including:
-- project modules (e.g. `air_quality/`, `transit_accessibility/`, …)
-- raw OSM extracts under `osm/`
-- a repo-local Overpass database under `overpass/` (built/imported locally)
-- project-specific Overpass + density tooling under `amensity/` (folder name intentionally kept as-is)
+**API:** OpenStreetMap **Overpass API**
 
-## Folder layout
+* Query POIs around a street segment (buffer) using tags like `amenity=*`, `shop=*`, `healthcare=*`, `tourism=*`. [OpenStreetMap**+1**](https://wiki.openstreetmap.org/wiki/Overpass_API?utm_source=chatgpt.com)
 
-- `geodata/amensity/`
-  - Repo-local Overpass build + setup scripts and density analysis scripts.
-  - Start here: `geodata/amensity/README.md`
-- `geodata/osm/`
-  - Raw downloads (e.g. `germany-latest.osm.pbf`) and converted extracts used for import.
-- `geodata/overpass/`
-  - `db/` Overpass database files
-  - `logs/` import/build/dispatcher/http logs
-  - `diffs/` optional replication diffs (currently unused)
+## 2) Transit accessibility (stops, stations)
 
-Other directories (`air_quality/`, `green_proximity/`, …) are placeholders for additional geodata pipelines.
+**API options:**
 
-## Overpass (local)
+* **Overpass API** : `public_transport=platform`, `highway=bus_stop`, `railway=station`, etc. [OpenStreetMap**+1**](https://wiki.openstreetmap.org/wiki/Overpass_API?utm_source=chatgpt.com)
+* **Transitland** (API token, global GTFS/GTFS-RT aggregation): useful when you prefer GTFS-based stop locations rather than OSM tags. [transit.land**+1**](https://www.transit.land/documentation/datasets/downloading/?utm_source=chatgpt.com)
+* **Germany-specific** : `gtfs.de` (GTFS + GTFS-RT offerings) and local networks like **VBB GTFS-RT** for Berlin/Brandenburg. [gtfs.de**+2**gtfs.de**+2**](https://gtfs.de/en/?utm_source=chatgpt.com)
 
-This repo runs Overpass fully locally (no root, no system-wide install required).
+## 3) Green proximity (parks, forests, green areas)
 
-Typical workflow (from repo root):
+**API:** Overpass API
 
-```bash
-# 1) build Overpass in-repo
-./geodata/amensity/overpass_build.sh
+* Tags: `leisure=park`, `natural=wood`, `landuse=forest/grass`, `leisure=playground`, etc. [OpenStreetMap**+1**](https://wiki.openstreetmap.org/wiki/Overpass_API?utm_source=chatgpt.com)
 
-# 2) import an extract into ./geodata/overpass/db (long step)
-./geodata/amensity/overpass_setup.sh --extract-url https://download.geofabrik.de/europe/germany-latest.osm.pbf --force-import
+## 4) Traffic / noise proxy (road type, speed limits, major roads nearby)
 
-# 3) start local dispatcher + HTTP endpoint
-./geodata/amensity/overpass_start.sh
+**API:** Overpass API
 
-# 4) verify
-./geodata/amensity/overpass_status.sh
+* Use the street’s own `highway=*` class (e.g., `primary/secondary/residential`) and nearby road classes as a proxy; optionally include `maxspeed=*`, `lanes=*` where present. [OpenStreetMap**+1**](https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL?utm_source=chatgpt.com)
 
-# 5) stop
-./geodata/amensity/overpass_stop.sh
-```
+  Note: this is a  *proxy* , not real-time traffic.
 
-Local endpoint:
-- `POST http://127.0.0.1:8080/api/interpreter` (form field `data` with Overpass QL)
+## 5) Nightlife density (bars, clubs)
 
-## Density analysis
+**API:** Overpass API
 
-After importing Germany (or another extract) and starting Overpass, you can run:
+* Tags: `amenity=bar`, `amenity=pub`, `amenity=nightclub`, etc. [OpenStreetMap**+1**](https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide?utm_source=chatgpt.com)
 
-- Street + grid density:
-  - `./geodata/amensity/street_density.py --radius-km 5 --cell-size-m 300 --force`
-- Micro grid sampling (quick, coarse):
-  - `./geodata/amensity/micro_density.py --force`
+## 6) Air quality (PM2.5, NO2, etc.)
 
-Outputs are written under `geodata/amensity/analysis/` (ignored by git).
+**API options:**
 
-## Git / large files
-
-The following are local artifacts and are ignored via `.gitignore`:
-- `geodata/osm/`
-- `geodata/overpass/db/`
-- `geodata/overpass/logs/`
-- `geodata/overpass/diffs/`
-- `geodata/amensity/vendor/overpass/`
-- `geodata/amensity/analysis/`
+* **OpenAQ API v3** (global; requires API key header `X-API-Key`). [OpenAQ Docs**+1**](https://docs.openaq.org/using-the-api/api-key?utm_source=chatgpt.com)
+* **Germany** : Umweltbundesamt (UBA) **Air Data API** (REST API; official DE air monitoring). [Luftdaten**+1**](https://luftdaten.umweltbundesamt.de/en?utm_source=chatgpt.com)
+* **Europe** : European Environment Agency  **Air Quality Download Service API** . [Europäische Umweltagentur](https://www.eea.europa.eu/en/datahub/datahubitem-view/778ef9f5-6293-4846-badd-56a29c70880d?utm_source=chatgpt.com)

@@ -122,6 +122,11 @@ else
     log "Removing stale pidfile: ${DISPATCHER_PIDFILE}"
     rm -f -- "${DISPATCHER_PIDFILE}"
   fi
+  # If a previous crash left a stale unix socket file, dispatcher will fail with "Address already in use".
+  if [[ -S "${SOCKET_DIR}/osm3s_osm_base" ]]; then
+    log "Removing stale socket file: ${SOCKET_DIR}/osm3s_osm_base"
+    rm -f -- "${SOCKET_DIR}/osm3s_osm_base"
+  fi
   log "Starting dispatcher..."
   start_bg "${DISPATCHER_PIDFILE}" "${DISPATCHER_LOG}" \
     "${DISPATCHER_BIN}" --osm-base --db-dir="${DB_DIR}" --socket-dir="${SOCKET_LINK}" "${META_FLAG[@]}"
@@ -129,6 +134,7 @@ else
   if ! is_running_from_pidfile "${DISPATCHER_PIDFILE}"; then
     log "Dispatcher failed to start. Last 200 lines of ${DISPATCHER_LOG}:"
     tail -n 200 "${DISPATCHER_LOG}" >&2 || true
+    rm -f -- "${DISPATCHER_PIDFILE}" || true
     exit 1
   fi
   log "Dispatcher started (pid $(cat "${DISPATCHER_PIDFILE}"))"
@@ -152,6 +158,7 @@ else
   if ! is_running_from_pidfile "${HTTP_PIDFILE}"; then
     log "HTTP wrapper failed to start. Last 200 lines of ${HTTP_LOG}:"
     tail -n 200 "${HTTP_LOG}" >&2 || true
+    rm -f -- "${HTTP_PIDFILE}" || true
     exit 1
   fi
   log "HTTP wrapper started (pid $(cat "${HTTP_PIDFILE}"))"

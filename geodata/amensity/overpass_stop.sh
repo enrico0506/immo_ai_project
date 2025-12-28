@@ -27,6 +27,8 @@ OVERPASS_DIR="${REPO_ROOT}/geodata/overpass"
 DISPATCHER_PIDFILE="${OVERPASS_DIR}/dispatcher.pid"
 HTTP_PIDFILE="${OVERPASS_DIR}/http.pid"
 SOCKET_DIR="${OVERPASS_DIR}/socket"
+DB_DIR="${OVERPASS_DIR}/db"
+LOGS_DIR="${OVERPASS_DIR}/logs"
 
 stop_pidfile() {
   local name="$1"
@@ -73,6 +75,33 @@ stop_pidfile() {
 stop_pidfile "HTTP wrapper" "${HTTP_PIDFILE}"
 stop_pidfile "Dispatcher" "${DISPATCHER_PIDFILE}"
 
+kill_stray() {
+  local name="$1"
+  shift
+  local pattern="$1"
+  shift
+  if ! command -v pgrep >/dev/null 2>&1; then
+    return 0
+  fi
+  local pids
+  pids="$(pgrep -f "${pattern}" || true)"
+  if [[ -z "${pids}" ]]; then
+    return 0
+  fi
+  log "${name}: found stray processes (pgrep -f '${pattern}'): ${pids}"
+  kill -TERM ${pids} 2>/dev/null || true
+  sleep 0.5
+  for pid in ${pids}; do
+    if kill -0 "${pid}" 2>/dev/null; then
+      kill -KILL "${pid}" 2>/dev/null || true
+    fi
+  done
+}
+
+# If pidfiles were stale/missing after a crash, try best-effort cleanup by pattern.
+kill_stray "Dispatcher" "dispatcher.*--db-dir=${DB_DIR}"
+kill_stray "HTTP wrapper" "overpass_http\\.py"
+
 compute_socket_link() {
   local id=""
   if command -v sha1sum >/dev/null 2>&1; then
@@ -92,4 +121,9 @@ if [[ -L "${SOCKET_LINK}" ]]; then
     rm -f -- "${SOCKET_LINK}"
     log "Removed socket symlink: ${SOCKET_LINK}"
   fi
+fi
+
+# Remove stale unix socket files that can block dispatcher start (EADDRINUSE).
+if [[ -d "${SOCKET_DIR}" ]]; then
+  rm -f -- "${SOCKET_DIR}"/osm3s_* 2>/dev/null || true
 fi
