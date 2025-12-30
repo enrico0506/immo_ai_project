@@ -1,1 +1,35 @@
-# (intentionally empty for now)
+# Python
+__pycache__/
+*.py[cod]
+
+# Local env (often contains secrets)
+.env
+
+# Data outputs (keep code in git, keep data local)
+get_data/**/data/raw/
+get_data/**/data/processed/
+get_data/**/data/info/
+get_data/**/cache/
+
+# DB creation exports (JSON arrays can be huge)
+get_data/**/db_creation/data/json/
+
+# Old/temporary db info outputs
+get_data/**/db_creation/db_info/
+
+# Geodata / Overpass (local artifacts)
+geodata/osm/
+geodata/overpass/db/
+geodata/overpass/diffs/
+geodata/overpass/logs/
+geodata/overpass/*.pid
+geodata/overpass/socket/
+geodata/amensity/vendor/overpass/
+geodata/amensity/analysis/
+geodata/amensity/gtfs/
+geodata/amensity/noise/
+
+# Persona model artifacts
+persona_model/output/
+persona_model/artifacts/
+persona_model/data/

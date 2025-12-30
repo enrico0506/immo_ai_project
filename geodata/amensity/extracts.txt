@@ -1,0 +1,11 @@
+# Format (one per line):
+#   <Label><TAB><URL>
+# You may also use: <Label>|<URL>
+#
+# Prefer .osm.bz2 extracts when available.
+# Note: Geofabrik commonly provides .osm.pbf; this setup supports .pbf via osmium-tool conversion.
+
+Berlin (latest)	https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf
+Hamburg (latest)	https://download.geofabrik.de/europe/germany/hamburg-latest.osm.pbf
+Bavaria / Bayern (latest)	https://download.geofabrik.de/europe/germany/bayern-latest.osm.pbf
+Germany (latest)	https://download.geofabrik.de/europe/germany-latest.osm.pbf
