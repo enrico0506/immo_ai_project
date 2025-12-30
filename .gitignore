@@ -28,3 +28,8 @@ geodata/amensity/vendor/overpass/
 geodata/amensity/analysis/
 geodata/amensity/gtfs/
 geodata/amensity/noise/
+
+# Persona model artifacts
+persona_model/output/
+persona_model/artifacts/
+persona_model/data/
